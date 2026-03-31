@@ -53,7 +53,7 @@ use_repo(gcc, "score_gcc_x86_64_toolchain", "score_qcc_x86_64_toolchain", "score
 bazel_dep(name = "score_rules_imagefs", version = "0.0.2")
 git_override(
     module_name = "score_rules_imagefs",
-    commit = "14bd2b5d560bb375ef99f592bddc08c8cc82fb5b",
+    commit = "5c5d32eb5597ca6463e840deaf8a80523edba525",
     remote = "https://github.com/eclipse-score/rules_imagefs.git",
 )
 
