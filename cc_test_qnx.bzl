@@ -141,14 +141,14 @@ def cc_test_qnx(name, cc_test, excluded_tests_filter = None):
 
     sh_test(
         name = name,
-        srcs = ["@qnx_unit_tests//:x86_64_qnx8/run_qemu.sh"],
+        srcs = ["@score_qnx_unit_tests//:x86_64_qnx8/run_qemu.sh"],
         args = [
-            "$(location @qnx_unit_tests//:init)",
+            "$(location @score_qnx_unit_tests//:init)",
             "$(location :%s_pkg_tar)" % name,
         ],
         data = [
             ":%s_pkg_tar" % name,
-            "@qnx_unit_tests//:init",
+            "@score_qnx_unit_tests//:init",
         ],
         timeout = "moderate",
         size = "medium",
@@ -164,14 +164,14 @@ def cc_test_qnx(name, cc_test, excluded_tests_filter = None):
 
     sh_binary(
         name = "%s_shell" % name,
-        srcs = ["@qnx_unit_tests//:x86_64_qnx8/run_qemu_shell.sh"],
+        srcs = ["@score_qnx_unit_tests//:x86_64_qnx8/run_qemu_shell.sh"],
         args = [
-            "$(location @qnx_unit_tests//:init_shell)",
+            "$(location @score_qnx_unit_tests//:init_shell)",
             "$(locations :%s_pkg_tar)" % name,
         ],
         data = [
             ":%s_pkg_tar" % name,
-            "@qnx_unit_tests//:init_shell",
+            "@score_qnx_unit_tests//:init_shell",
         ],
         testonly = True,
         target_compatible_with = [
