@@ -1,0 +1,35 @@
+###############################################################################
+#
+# Example image built based on minimal configuration from QNX
+#
+###############################################################################
+
+[-optional +autolink]
+
+[image=0x3600000]
+[virtual=x86_64,multiboot] boot = {
+    # Use startup-x86 by default
+    startup-x86 -v -D8250..115200 -zz
+    PATH=/proc/boot
+    LD_LIBRARY_PATH=/proc/boot:/usr/lib
+    procnto-smp-instr
+}
+
+[+script] startup-script = {
+    procmgr_symlink /dev/shmem /tmp
+
+    display_msg Welcome to QNX OS 8.0 on x86_64 tweaked for S-CORE
+
+    # These env variables get inherited by all programs which follow
+    SYSNAME=nto
+    TERM=qansi
+    PCI_CAP_MODULE_DIR=/proc/boot
+
+    devc-ser8250 &
+    waitfor /dev/ser1
+    reopen /dev/ser1
+
+    startup.sh
+
+    {RUN_BINARY}
+}

@@ -1,0 +1,155 @@
+# dynamic loader
+/usr/lib/ldqnx-64.so.2=ldqnx-64.so.2
+
+# shared libraries
+cam-cdrom.so
+cam-disk.so
+devr-virtio.so
+fs-dos.so
+fs-qnx6.so
+io-blk.so
+libbz2.so.1
+libc++.so.2
+libc.so
+libc.so.6
+libcam.so.2
+libcatalog.so.1
+libcrypto.so.3
+libexpat.so.2
+libfscrypto.so.1
+libfsnotify.so.1
+libgcc_s.so.1
+libiconv.so.1
+libjail.so.1
+liblzma.so.5
+libm.so
+libm.so.3
+libpam.so.2
+libpci.so.3.0
+libqcrypto.so.1.0
+libqh.so
+libqh.so.1
+libregex.so.1
+libsecpol.so.1
+libsecpolev.so.1
+libslog2.so.1
+libslog2parse.so.1
+libsocket.so.4
+libssl.so.3
+libtracelog.so.1
+libxml2.so.2
+libz.so
+libz.so.2
+qcrypto-openssl-3.so
+
+# tools
+awk
+devb-eide
+devb-ram
+devc-pty
+devc-ser8250
+fsencrypt
+fsevmgr
+if_up
+ifconfig
+ksh
+mkqnx6fs
+mount
+mount_ifs
+mqueue
+on
+openssl
+pdebug
+pci-tool
+pfctl
+pidin
+pipe
+random
+shutdown
+slog2info
+slogger2
+sync
+tar
+toybox
+umount
+
+# links
+[type=link] /bin/sh=/proc/boot/ksh
+[type=link] /bin/ls=/proc/boot/ls
+[type=link] cat=toybox
+
+# Pre-create mount point parent for virtio-9p host share
+[type=dir dperms=0755] /mnt
+[type=link] chmod=toybox
+[type=link] cp=toybox
+[type=link] dd=toybox
+[type=link] echo=toybox
+[type=link] env=toybox
+[type=link] find=toybox
+[type=link] grep=toybox
+[type=link] gzip=toybox
+[type=link] ln=toybox
+[type=link] ls=toybox
+[type=link] mkdir=toybox
+[type=link] mq=toybox
+[type=link] rm=toybox
+[type=link] waitfor=on
+
+io-sock                                  # Network socket manager
+mods-pci.so                              # PCI module support for network hardware
+mods-phy.so                              # Physical layer module for network interfaces
+mods-usb.so                              # USB module support
+libfdt.so.1                              # Flattened Device Tree library
+libusbdci.so.2                           # USB device controller interface library
+devs-vtnet_pci.so                        # VirtIO network device driver for QEMU/KVM
+librpc.so.2                              # For TCP dump
+
+# Skip PCI bus configuration by the pci-server. In QEMU, SeaBIOS has already
+# enumerated PCI devices, assigned BARs, programmed the PIIX3 PIRQ routing
+# registers, and written resolved IRQ numbers into each device's Interrupt Line
+# register (config offset 0x3C). This means no pci_hw.cfg with INTx interrupt
+# mappings is needed — pci_device_read_irq() simply reads what the firmware
+# already configured. Drivers that use MSI-X (e.g. fs-virtio9p) bypass legacy
+# INTx routing entirely, programming the MSI-X table directly via MMIO.
+[perms=0444] pci_server.cfg = {
+[buscfg]
+DO_BUS_CONFIG=no
+
+[envars]
+PCI_DEBUG_MODULE=pci_debug2.so
+PCI_HW_MODULE=pci_hw-Intel_x86.so
+}
+pci/pci_hw-Intel_x86.so
+pci/pci_slog2.so
+# PCI capability modules for the QEMU i440FX bus topology:
+# Cap 0x01: Power Management — used by virtio-net-pci and PIIX3 PM device
+pci/pci_cap-0x01.so
+# Cap 0x05: MSI — virtio-net-pci may expose Message Signaled Interrupts
+pci/pci_cap-0x05.so
+# Cap 0x09: Vendor Specific — virtio PCI config structures (virtio-blk, virtio-rng, virtio-9p, virtio-net)
+pci/pci_cap-0x09-ffffffff.so
+# Cap 0x11: MSI-X — all virtio-pci devices expose MSI-X
+pci/pci_cap-0x11-ffffffff.so
+pci/pci_cap-0x11.so
+pci/pci_strings.so
+pci/pci_bkwd_compat.so
+pci/pci_debug2.so
+pci-server
+
+[uid=0 gid=0 perms=0444] qcrypto.conf = {
+openssl-3 tags=*
+}
+
+/etc/passwd = {
+root:x:0:0:Superuser:/root:/bin/sh
+}
+
+/etc/group = {
+root:x:0:root
+block-dev:x:1090:root
+devc-ser:x:1091:root
+kmem:x:498:root
+random:x:1092:root
+pci-server:x:1093:root
+pf:x:1080:root
+}

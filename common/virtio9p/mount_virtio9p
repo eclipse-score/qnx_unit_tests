@@ -1,0 +1,44 @@
+#!/bin/sh
+# Mount helper for virtio-9p filesystem.
+#
+# Invoked by: mount -t virtio9p -o <options> <device> <mountpoint>
+# Or directly: mount_virtio9p -o <options> <device> <mountpoint>
+#
+# The <device> argument (conventionally "none") is ignored since virtio-9p
+# discovers its device via transport auto-detection or explicit smem=/irq= opts.
+
+opts=""
+device=""
+mountpoint=""
+
+while [ $# -gt 0 ]; do
+    case "$1" in
+        -o)
+            shift
+            opts="$1"
+            ;;
+        -*)
+            # Ignore unknown flags (mount may pass -n, etc.)
+            ;;
+        *)
+            # Positional args: device then mountpoint
+            if [ -z "$device" ]; then
+                device="$1"
+            else
+                mountpoint="$1"
+            fi
+            ;;
+    esac
+    shift
+done
+
+if [ -z "$mountpoint" ]; then
+    echo "Usage: mount_virtio9p [-o <options>] <device> <mountpoint>" >&2
+    exit 1
+fi
+
+if [ -n "$opts" ]; then
+    exec fs-virtio9p -d -o "$opts" "$mountpoint"
+else
+    exec fs-virtio9p -d "$mountpoint"
+fi

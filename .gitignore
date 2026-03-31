@@ -1,0 +1,104 @@
+# Prerequisites
+*.d
+
+# Object files
+*.o
+*.ko
+*.obj
+*.elf
+
+# Linker output
+*.ilk
+*.map
+*.exp
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Libraries
+*.lib
+*.a
+*.la
+*.lo
+
+# Shared objects (inc. Windows DLLs)
+*.dll
+*.so
+*.so.*
+*.dylib
+
+# Executables
+*.exe
+*.out
+*.app
+*.i*86
+*.x86_64
+*.hex
+
+# Debug files
+*.dSYM/
+*.su
+*.idb
+*.pdb
+
+# Kernel Module Compile Results
+*.mod*
+*.cmd
+.tmp_versions/
+modules.order
+Module.symvers
+Mkfile.old
+dkms.conf
+
+user.bazelrc
+/bazel-*
+!zuul.d/
+
+# Ignore project files from JetBrains IDEs: PyCharm, IntelliJ IDEA, CLion, WebStorm
+*.idea
+*.clwb
+
+# Ignore temporary coverage files
+*.coverage
+
+# Ignore temporary coverity files
+coverity-out
+
+# Editors
+# Code Editors
+.vscode
+
+# Python cache/venv folders
+*__pycache__*
+.venv/
+*.egg-info/
+
+# Qemu files
+*.qcow2
+
+# Core dumps
+*.core
+*.core.gz
+
+# compilation database
+**/compile_commands.json
+
+# Ignore clangd's config file and cache folders
+.clangd
+**/.cache/clangd
+
+# .DS_Store files
+.DS_Store
+
+# Ansible
+.ansible
+
+# drawio backup files
+.$*.bkp
+
+# lockfile for bzlmod
+MODULE.bazel.lock
+
+# third_party checkouts
+third_party/rules_imagefs

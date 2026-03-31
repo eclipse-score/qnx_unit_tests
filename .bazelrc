@@ -1,0 +1,20 @@
+# Score custom registry + BCR
+common --registry=https://raw.githubusercontent.com/eclipse-score/bazel_registry/main/
+common --registry=https://bcr.bazel.build
+
+# Default host toolchain
+build --host_platform=@score_bazel_platforms//:x86_64-linux-gcc_12.2.0-posix
+build --extra_toolchains=@score_gcc_x86_64_toolchain//:x86_64-linux-gcc_12.2.0
+
+# QNX x86_64 cross-compilation config
+build:qnx-x86_64 --action_env=BAZEL_DO_NOT_DETECT_CPP_TOOLCHAIN=1
+build:qnx-x86_64 --incompatible_enable_cc_toolchain_resolution
+build:qnx-x86_64 --incompatible_strict_action_env
+build:qnx-x86_64 --sandbox_writable_path=/var/tmp
+build:qnx-x86_64 --platforms=@score_bazel_platforms//:x86_64-qnx-sdp_8.0.0-posix
+build:qnx-x86_64 --extra_toolchains=@score_qcc_x86_64_toolchain//:x86_64-qnx-sdp_8.0.0
+build:qnx-x86_64 --extra_toolchains=@score_qnx_x86_64_ifs_toolchain//:ifs-x86_64-qnx-sdp_8.0.0
+build:qnx-x86_64 --credential_helper=*.qnx.com=%workspace%/tools/qnx_credential_helper.py
+
+# Test output
+test --test_output=errors
