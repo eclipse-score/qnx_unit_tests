@@ -28,6 +28,7 @@ if [ -d "$ROOT_DIR" ]; then
 fi
 
 export GTEST_FILTER="$(cat /opt/tests/cc_test_qnx_filters.txt)"
+export GTEST_OUTPUT="xml:/persistent/test.xml"
 
 cp -R /opt/tests/libs /persistent/unit_tests/
 export LD_LIBRARY_PATH="/persistent/unit_tests/libs:${LD_LIBRARY_PATH}"
@@ -35,7 +36,7 @@ export LD_LIBRARY_PATH="/persistent/unit_tests/libs:${LD_LIBRARY_PATH}"
 cd /persistent/unit_tests
 cp -f /opt/tests/cc_test_qnx cc_test_qnx
 chmod +x cc_test_qnx
-/persistent/unit_tests/cc_test_qnx --gtest_output=xml:/persistent/test.xml
+/persistent/unit_tests/cc_test_qnx
 
 echo "$?" > /persistent/returncode.log
 

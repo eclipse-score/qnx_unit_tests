@@ -109,9 +109,12 @@ qnx_ifs(
 copyright_checker(
     name = "copyright",
     srcs = [
+        "cc_test_qnx.bzl",
         "common",
         "examples",
+        "rust_test_qnx.bzl",
         "test",
+        "test_qnx.bzl",
         "third_party",
         "tools",
         "x86_64_qnx8",

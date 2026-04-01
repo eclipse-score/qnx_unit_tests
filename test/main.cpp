@@ -11,8 +11,19 @@
  * SPDX-License-Identifier: Apache-2.0
  ********************************************************************************/
 #include <gtest/gtest.h>
+#include <fstream>
+#include <string>
 
 TEST(FirstTests, Test001)
 {
     ASSERT_TRUE(true);
+}
+
+TEST(FirstTests, TestReadDataFile)
+{
+    std::ifstream file("test/data.txt");
+    ASSERT_TRUE(file.is_open());
+    std::string content;
+    std::getline(file, content);
+    ASSERT_EQ(content, "dummy data");
 }

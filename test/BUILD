@@ -11,7 +11,9 @@
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
 load("@rules_cc//cc:defs.bzl", "cc_test")
+load("@rules_rust//rust:defs.bzl", "rust_test")
 load("@score_qnx_unit_tests//:cc_test_qnx.bzl", "cc_test_qnx")
+load("@score_qnx_unit_tests//:rust_test_qnx.bzl", "rust_test_qnx")
 
 cc_test(
     name = "main_cpp",
@@ -26,4 +28,15 @@ cc_test(
 cc_test_qnx(
     name = "main_cpp_qnx",
     cc_test = ":main_cpp",
+)
+
+rust_test(
+    name = "main_rust",
+    srcs = ["main_rust.rs"],
+    data = ["data.txt"],
+)
+
+rust_test_qnx(
+    name = "main_rust_qnx",
+    rust_test = ":main_rust",
 )

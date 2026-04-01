@@ -25,6 +25,7 @@ local_path_override(
 bazel_dep(name = "bazel_skylib", version = "1.9.0")
 bazel_dep(name = "platforms", version = "1.0.0")
 bazel_dep(name = "rules_cc", version = "0.2.17")
+bazel_dep(name = "rules_rust", version = "0.61.0")
 bazel_dep(name = "rules_shell", version = "0.6.1")
 bazel_dep(name = "rules_pkg", version = "1.2.0")
 
@@ -73,3 +74,12 @@ imagefs.toolchain(
     type = "ifs",
 )
 use_repo(imagefs, "score_qnx_x86_64_ifs_toolchain")
+
+# Rust toolchain (Ferrocene, matching reference_integration setup)
+bazel_dep(name = "score_toolchains_rust", version = "0.4.0")
+
+git_override(
+    module_name = "rules_rust",
+    commit = "293337fd6402ec3dfbeb8f2d589f38ad9124dadd",
+    remote = "https://github.com/pawelrutkaq/rules_rust.git",
+)

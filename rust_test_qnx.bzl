@@ -14,12 +14,11 @@
 
 load("@score_qnx_unit_tests//:test_qnx.bzl", "test_qnx")
 
-def cc_test_qnx(name, cc_test, excluded_tests_filter = None):
-    """Compile and run a C++ QNX unit test in a QEMU microVM.
+def rust_test_qnx(name, rust_test):
+    """Compile and run a Rust QNX unit test in a QEMU microVM.
 
     Args:
       name: Test name
-      cc_test: cc_test target
-      excluded_tests_filter: list of tests to be excluded from execution.
+      rust_test: rust_test target
     """
-    test_qnx(name = name, test = cc_test, excluded_tests_filter = excluded_tests_filter)
+    test_qnx(name = name, test = rust_test)
