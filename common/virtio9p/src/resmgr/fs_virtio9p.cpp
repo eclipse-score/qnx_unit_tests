@@ -250,7 +250,10 @@ int IoRead(resmgr_context_t* ctp, io_read_t* msg, void* vocb)
             return -result;
         }
 
-        // Format entries as QNX dirent structures
+        // Format entries as QNX dirent structures.
+        // Each QNX dirent may be larger than the corresponding 9P entry due to
+        // different field sizes and alignment, so stop before exceeding the
+        // caller's buffer to avoid truncating an entry mid-name.
         std::vector<std::uint8_t> buf;
         for (const auto& entry : entries)
         {
@@ -258,6 +261,11 @@ int IoRead(resmgr_context_t* ctp, io_read_t* msg, void* vocb)
             const auto name_len = entry.name.size();
             // offsetof(dirent, d_name) + name_len + 1 (NUL), rounded up to 8
             const auto reclen = (offsetof(struct dirent, d_name) + name_len + 1U + 7U) & ~static_cast<std::size_t>(7U);
+
+            if (buf.size() + reclen > nbytes)
+            {
+                break;
+            }
 
             std::vector<std::uint8_t> entry_buf(reclen, 0U);
             auto* de = reinterpret_cast<struct dirent*>(entry_buf.data());
@@ -278,7 +286,7 @@ int IoRead(resmgr_context_t* ctp, io_read_t* msg, void* vocb)
             return EOK;
         }
 
-        const auto reply_len = static_cast<int>(buf.size() < nbytes ? buf.size() : nbytes);
+        const auto reply_len = static_cast<int>(buf.size());
         MsgReply(ctp->rcvid, reply_len, buf.data(), static_cast<std::size_t>(reply_len));
         ocb->attr->nbytes = static_cast<off_t>(reply_len);
         return _RESMGR_NOREPLY;
