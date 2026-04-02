@@ -24,7 +24,8 @@ jobs:
       - run: echo "Workflow approved"
   qnx-ut-examples-build-and-test:
     needs: workflow-approval
-    if: ${{ !cancelled() && (needs.workflow-approval.result == 'success' || needs.workflow-approval.result == 'skipped') && github.event.pull_request.head.repo.full_name == github.repository }}
+    # yamlfmt inserts spurious blank lines in >- blocks, so keep this on one line
+    if: ${{ !cancelled() && (needs.workflow-approval.result == 'success' || needs.workflow-approval.result == 'skipped') && (github.event_name == 'merge_group' || github.event.pull_request.head.repo.full_name == github.repository) }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
