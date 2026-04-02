@@ -17,7 +17,7 @@ on:
     types: [checks_requested]
 jobs:
   workflow-approval:
-    if: github.event_name == 'pull_request'
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     environment: workflow-approval
     steps:
