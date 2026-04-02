@@ -1,0 +1,129 @@
+# dynamic loader
+/usr/lib/ldqnx-64.so.2=ldqnx-64.so.2
+
+# shared libraries
+cam-cdrom.so
+cam-disk.so
+devr-virtio.so
+devs-vtnet_mmio.so
+fs-dos.so
+fs-qnx6.so
+io-blk.so
+libbz2.so.1
+libc++.so.2
+libc.so.6
+libcam.so.2
+libcatalog.so.1
+libcrypto.so.3
+libexpat.so.2
+libfdt.so.1
+libfscrypto.so.1
+libfsnotify.so.1
+libgcc_s.so.1
+libiconv.so.1
+libjail.so.1
+liblz4.so.1
+liblzma.so.5
+libm.so.3
+libpci.so.3.0
+libqcrypto.so.1.0
+libqh.so.1
+libqnxnoexcept.so.1
+libregex.so.1
+libsecpol.so.1
+libsecpolev.so.1
+libslog2.so.1
+libslog2parse.so.1
+libsocket.so.4
+libssl.so.3
+libtracelog.so.1
+libusbdci.so.2
+libxml2.so.2
+libz.so.2
+libzstd.so.1
+mods-fdt.so
+mods-pci.so
+mods-phy.so
+mods-phy_fdt.so
+mods-usb.so
+qcrypto-openssl-3.so
+
+# tools
+awk
+devb-ram
+devb-virtio
+devc-pty
+devc-serpl011
+fsencrypt
+fsevmgr
+if_up
+ifconfig
+io-sock
+ksh
+mkqnx6fs
+mount
+mount_ifs
+mqueue
+on
+openssl
+pdebug
+pfctl
+pidin
+pipe
+random
+shutdown
+slog2info
+slogger2
+sync
+tar
+toybox
+umount
+
+# links
+[type=link] /bin/sh=/proc/boot/ksh
+[type=link] /bin/ls=/proc/boot/ls
+[type=link] cat=toybox
+[type=link] chmod=toybox
+[type=link] cp=toybox
+[type=link] dd=toybox
+[type=link] echo=toybox
+[type=link] env=toybox
+[type=link] find=toybox
+[type=link] grep=toybox
+[type=link] gzip=toybox
+[type=link] ln=toybox
+[type=link] ls=toybox
+[type=link] mkdir=toybox
+[type=link] mq=toybox
+[type=link] rm=toybox
+[type=link] waitfor=on
+
+[uid=0 gid=0 perms=0444] qcrypto.conf = {
+openssl-3 tags=*
+}
+
+/etc/passwd = {
+root:x:0:0:Superuser:/root:/bin/sh
+sshd:x:15:6:sshd:/var/chroot/sshd:/bin/false
+crash_handler:x:1036:1036::/dev/null:/bin/false
+slogger2:x:1055:1055:slogger2:/dev/null:/bin/false
+sshauth:x:1071:1054::/dev/null:/bin/false
+}
+
+/etc/group = {
+root:x:0:root
+autosar:x:1054:root
+non-autosar:x:1055:slogger2
+slogger2read:x:486:slogger2
+crash_services:x:1036:
+gpio:x:1060:root
+block-dev:x:1090:root
+devc-ser:x:1091:root
+nor-write:x:1070:root
+msr:x:1071:root
+kmem:x:498:root
+random:x:1092:root
+pci-server:x:1093:root
+pf:x:1080:root
+software-update:x:1100:root
+}

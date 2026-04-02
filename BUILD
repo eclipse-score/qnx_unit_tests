@@ -19,6 +19,8 @@ exports_files(
     [
         "x86_64_qnx8/run_qemu_shell.sh",
         "x86_64_qnx8/run_qemu.sh",
+        "arm64/run_qemu_shell.sh",
+        "arm64/run_qemu.sh",
     ],
     visibility = ["//visibility:public"],
 )
@@ -28,8 +30,14 @@ pkg_files(
     testonly = True,
     srcs = [
         "common/run_test.sh",
-        "x86_64_qnx8/startup.sh",
-    ],
+    ] + select({
+        "@platforms//cpu:x86_64": [
+            "x86_64_qnx8/startup.sh",
+        ],
+        "@platforms//cpu:aarch64": [
+            "arm64/startup.sh",
+        ],
+    }),
     attributes = pkg_attributes(mode = "0755"),
     prefix = "/proc/boot",
     tags = ["manual"],
@@ -54,7 +62,10 @@ expand_template(
         "{RUN_BINARY}": "run_test.sh",
     },
     tags = ["manual"],
-    template = "x86_64_qnx8/init.build.template",
+    template = select({
+        "@platforms//cpu:x86_64": "x86_64_qnx8/init.build.template",
+        "@platforms//cpu:aarch64": "arm64/init.build.template",
+    }),
 )
 
 qnx_ifs(
@@ -65,9 +76,10 @@ qnx_ifs(
         ":startup_pkg",
     ],
     build_file = ":init_build_test",
-    extra_build_files = [
-        "x86_64_qnx8/tools.build",
-    ],
+    extra_build_files = select({
+        "@platforms//cpu:x86_64": ["x86_64_qnx8/tools.build"],
+        "@platforms//cpu:aarch64": ["arm64/tools.build"],
+    }),
     tags = ["manual"],
     target_compatible_with = [
         "@platforms//os:qnx",
@@ -82,7 +94,10 @@ expand_template(
         "{RUN_BINARY}": "[+session] /bin/sh &",
     },
     tags = ["manual"],
-    template = "x86_64_qnx8/init.build.template",
+    template = select({
+        "@platforms//cpu:x86_64": "x86_64_qnx8/init.build.template",
+        "@platforms//cpu:aarch64": "arm64/init.build.template",
+    }),
 )
 
 qnx_ifs(
@@ -93,9 +108,10 @@ qnx_ifs(
         ":startup_pkg",
     ],
     build_file = ":init_build_shell",
-    extra_build_files = [
-        "x86_64_qnx8/tools.build",
-    ],
+    extra_build_files = select({
+        "@platforms//cpu:x86_64": ["x86_64_qnx8/tools.build"],
+        "@platforms//cpu:aarch64": ["arm64/tools.build"],
+    }),
     tags = ["manual"],
     target_compatible_with = [
         "@platforms//os:qnx",
@@ -109,6 +125,7 @@ qnx_ifs(
 copyright_checker(
     name = "copyright",
     srcs = [
+        "arm64",
         "cc_test_qnx.bzl",
         "common",
         "examples",

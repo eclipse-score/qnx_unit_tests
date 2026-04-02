@@ -150,7 +150,10 @@ def _test_qnx(name, test, excluded_tests_filter):
 
     sh_test(
         name = name,
-        srcs = ["@score_qnx_unit_tests//:x86_64_qnx8/run_qemu.sh"],
+        srcs = select({
+            "@platforms//cpu:x86_64": ["@score_qnx_unit_tests//:x86_64_qnx8/run_qemu.sh"],
+            "@platforms//cpu:aarch64": ["@score_qnx_unit_tests//:arm64/run_qemu.sh"],
+        }),
         args = [
             "$(location @score_qnx_unit_tests//:init)",
             "$(location :%s_pkg_tar)" % name,
@@ -173,7 +176,10 @@ def _test_qnx(name, test, excluded_tests_filter):
 
     sh_binary(
         name = "%s_shell" % name,
-        srcs = ["@score_qnx_unit_tests//:x86_64_qnx8/run_qemu_shell.sh"],
+        srcs = select({
+            "@platforms//cpu:x86_64": ["@score_qnx_unit_tests//:x86_64_qnx8/run_qemu_shell.sh"],
+            "@platforms//cpu:aarch64": ["@score_qnx_unit_tests//:arm64/run_qemu_shell.sh"],
+        }),
         args = [
             "$(location @score_qnx_unit_tests//:init_shell)",
             "$(locations :%s_pkg_tar)" % name,

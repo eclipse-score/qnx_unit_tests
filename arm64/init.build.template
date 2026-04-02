@@ -1,0 +1,33 @@
+###############################################################################
+#
+# Example image built based on minimal configuration from QNX
+#
+###############################################################################
+
+[-optional +autolink]
+
+[image=0x40080000]
+[virtual=aarch64le,raw] boot = {
+    startup-qemu-virt -v
+    PATH=/proc/boot
+    LD_LIBRARY_PATH=/proc/boot
+    procnto-smp-instr
+}
+
+[+script] startup-script = {
+    procmgr_symlink /dev/shmem /tmp
+
+    display_msg Welcome to QNX OS 8.0 on aarch64 tweaked for S-CORE
+
+    # These env variables get inherited by all programs which follow
+    SYSNAME=nto
+    TERM=qansi
+
+    devc-serpl011 -e -F 0x9000000,33
+    waitfor /dev/ser1
+    reopen /dev/ser1
+
+    startup.sh
+
+    {RUN_BINARY}
+}

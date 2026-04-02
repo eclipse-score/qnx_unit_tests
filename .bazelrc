@@ -19,5 +19,14 @@ build:qnx-x86_64 --extra_toolchains=@score_toolchains_rust//toolchains/ferrocene
 build:qnx-x86_64 --credential_helper=*.qnx.com=%workspace%/tools/qnx_credential_helper.py
 test:qnx-x86_64 --test_tag_filters=microvm_qnx_test
 
+# QNX aarch64 cross-compilation config
+build:qnx-aarch64 --sandbox_writable_path=/var/tmp
+build:qnx-aarch64 --platforms=@score_bazel_platforms//:aarch64-qnx-sdp_8.0.0-posix
+build:qnx-aarch64 --extra_toolchains=@score_qcc_aarch64_toolchain//:aarch64-qnx-sdp_8.0.0
+build:qnx-aarch64 --extra_toolchains=@score_qnx_aarch64_ifs_toolchain//:ifs-aarch64-qnx-sdp_8.0.0
+build:qnx-aarch64 --extra_toolchains=@score_toolchains_rust//toolchains/ferrocene:ferrocene_aarch64_unknown_nto_qnx800
+build:qnx-aarch64 --credential_helper=*.qnx.com=%workspace%/tools/qnx_credential_helper.py
+test:qnx-aarch64 --test_tag_filters=microvm_qnx_test
+
 # Test output
 test --test_output=errors
