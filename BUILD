@@ -12,15 +12,19 @@
 # *******************************************************************************
 load("@bazel_skylib//rules:expand_template.bzl", "expand_template")
 load("@rules_pkg//pkg:mappings.bzl", "pkg_attributes", "pkg_files")
+load("@rules_shell//shell:sh_binary.bzl", "sh_binary")
 load("@score_rules_imagefs//rules/qnx:ifs.bzl", "qnx_ifs")
 load("@score_tooling//:defs.bzl", "copyright_checker", "use_format_targets")
+load("//:runfiles_manifest.bzl", "runfiles_manifest")
 
 exports_files(
     [
         "x86_64_qnx8/run_qemu_shell.sh",
         "x86_64_qnx8/run_qemu.sh",
-        "arm64/run_qemu_shell.sh",
-        "arm64/run_qemu.sh",
+        "x86_64_qnx8/run_under_qnx.sh",
+        "arm64_qnx8/run_qemu_shell.sh",
+        "arm64_qnx8/run_qemu.sh",
+        "arm64_qnx8/run_under_qnx.sh",
     ],
     visibility = ["//visibility:public"],
 )
@@ -35,7 +39,7 @@ pkg_files(
             "x86_64_qnx8/startup.sh",
         ],
         "@platforms//cpu:aarch64": [
-            "arm64/startup.sh",
+            "arm64_qnx8/startup.sh",
         ],
     }),
     attributes = pkg_attributes(mode = "0755"),
@@ -64,7 +68,7 @@ expand_template(
     tags = ["manual"],
     template = select({
         "@platforms//cpu:x86_64": "x86_64_qnx8/init.build.template",
-        "@platforms//cpu:aarch64": "arm64/init.build.template",
+        "@platforms//cpu:aarch64": "arm64_qnx8/init.build.template",
     }),
 )
 
@@ -78,7 +82,7 @@ qnx_ifs(
     build_file = ":init_build_test",
     extra_build_files = select({
         "@platforms//cpu:x86_64": ["x86_64_qnx8/tools.build"],
-        "@platforms//cpu:aarch64": ["arm64/tools.build"],
+        "@platforms//cpu:aarch64": ["arm64_qnx8/tools.build"],
     }),
     tags = ["manual"],
     target_compatible_with = [
@@ -96,7 +100,7 @@ expand_template(
     tags = ["manual"],
     template = select({
         "@platforms//cpu:x86_64": "x86_64_qnx8/init.build.template",
-        "@platforms//cpu:aarch64": "arm64/init.build.template",
+        "@platforms//cpu:aarch64": "arm64_qnx8/init.build.template",
     }),
 )
 
@@ -110,12 +114,36 @@ qnx_ifs(
     build_file = ":init_build_shell",
     extra_build_files = select({
         "@platforms//cpu:x86_64": ["x86_64_qnx8/tools.build"],
-        "@platforms//cpu:aarch64": ["arm64/tools.build"],
+        "@platforms//cpu:aarch64": ["arm64_qnx8/tools.build"],
     }),
     tags = ["manual"],
     target_compatible_with = [
         "@platforms//os:qnx",
     ],
+    visibility = ["//visibility:public"],
+)
+
+runfiles_manifest(
+    name = "run_under_qnx_manifest",
+    testonly = True,
+    tags = ["manual"],
+    targets = [
+        ":init",
+    ],
+)
+
+sh_binary(
+    name = "run_under_qnx",
+    testonly = True,
+    srcs = select({
+        "@platforms//cpu:x86_64": ["x86_64_qnx8/run_under_qnx.sh"],
+        "@platforms//cpu:aarch64": ["arm64_qnx8/run_under_qnx.sh"],
+    }),
+    data = [
+        ":init",
+        ":run_under_qnx_manifest",
+    ],
+    tags = ["manual"],
     visibility = ["//visibility:public"],
 )
 
@@ -125,10 +153,11 @@ qnx_ifs(
 copyright_checker(
     name = "copyright",
     srcs = [
-        "arm64",
+        "arm64_qnx8",
         "cc_test_qnx.bzl",
         "common",
         "examples",
+        "runfiles_manifest.bzl",
         "rust_test_qnx.bzl",
         "test",
         "test_qnx.bzl",

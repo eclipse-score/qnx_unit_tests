@@ -34,8 +34,9 @@ jobs:
       run:
         working-directory: ${{ matrix.working-directory }}
     strategy:
+      max-parallel: 4
       matrix:
-        bazel-config: [qnx-x86_64, qnx-aarch64]
+        bazel-config: [qnx-x86_64, qnx-aarch64, run-under-qnx-x86_64, run-under-qnx-aarch64]
         working-directory: [., ./examples]
     steps:
       - name: Checkout repository
