@@ -2,6 +2,7 @@
 /usr/lib/ldqnx-64.so.2=ldqnx-64.so.2
 
 # shared libraries
+# test2
 cam-cdrom.so
 cam-disk.so
 devr-virtio.so
