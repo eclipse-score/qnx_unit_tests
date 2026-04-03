@@ -22,22 +22,20 @@ jobs:
     environment: workflow-approval
     steps:
       - run: echo "Workflow approved"
-  qnx-ut-examples-build-and-test:
+  qnx-ut-examples-build-all:
     needs: workflow-approval
     # yamlfmt inserts spurious blank lines in >- blocks, so keep this on one line
     if: ${{ !cancelled() && (needs.workflow-approval.result == 'success' || needs.workflow-approval.result == 'skipped') && (github.event_name == 'merge_group' || github.event.pull_request.head.repo.full_name == github.repository) }}
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    env:
+      SCORE_QNX_USER: ${{ secrets.SCORE_QNX_USER }}
+      SCORE_QNX_PASSWORD: ${{ secrets.SCORE_QNX_PASSWORD }}
     permissions:
       contents: read
       pull-requests: read
-    defaults:
-      run:
-        working-directory: ${{ matrix.working-directory }}
-    strategy:
-      max-parallel: 4
-      matrix:
-        bazel-config: [qnx-x86_64, qnx-aarch64, run-under-qnx-x86_64, run-under-qnx-aarch64]
-        working-directory: [., ./examples]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4.2.2
@@ -62,23 +60,20 @@ jobs:
         run: |
           sudo sysctl kernel.apparmor_restrict_unprivileged_userns=0
       - name: Build and test
-        env:
-          SCORE_QNX_USER: ${{ secrets.SCORE_QNX_USER }}
-          SCORE_QNX_PASSWORD: ${{ secrets.SCORE_QNX_PASSWORD }}
         run: |
-          bazel test --config=${{ matrix.bazel-config }} //test/...
+          bazel test --config=qnx-x86_64 //test/...
+          bazel test --config=run-under-qnx-x86_64 //test/...
+          bazel test --config=qnx-aarch64 //test/...
+          bazel test --config=run-under-qnx-aarch64 //test/...
+      - name: Build and test examples
+        run: |
+          cd ./examples
+          bazel test --config=qnx-x86_64 //...
+          bazel test --config=run-under-qnx-x86_64 //...
+          bazel test --config=qnx-aarch64 //...
+          bazel test --config=run-under-qnx-aarch64 //...
       - name: Cleanup QNX License
         if: always()
         run: |
           rm -rf /opt/score_qnx
           rm -rf "${HOME}/.cache/bazel"
-  qnx-ut-examples-build-all:
-    runs-on: ubuntu-latest
-    needs:
-      - qnx-ut-examples-build-and-test
-    if: always()
-    steps:
-      - if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
-        run: |
-          echo "Some jobs failed or were cancelled."
-          exit 1
