@@ -89,10 +89,13 @@ Launch an interactive QNX shell inside the microvm:
 bazel run --config=qnx-x86_64 //test:main_cpp_qnx_shell
 ```
 
-The test binary is available at `/opt/tests/cc_test_qnx`. Run it directly:
+The test binary is available at `/opt/tests/cc_test_qnx`. Before running it,
+execute the preparation script to set up the environment (runfiles, libraries,
+gtest filters):
 
 ```shell
-/opt/tests/cc_test_qnx
+. /proc/boot/prepare_test.sh
+/persistent/unit_tests/cc_test_qnx
 ```
 
 ### Debugging
@@ -103,13 +106,21 @@ The shell mode supports remote debugging via GDB. Specify a debug port:
 bazel run -c dbg --config=qnx-x86_64 //test:main_cpp_qnx_shell -- --debug-port 38080
 ```
 
-Then connect from the host:
+Inside the QNX shell, run the prepare script before starting the debugger to set up
+runfiles, libraries, and environment variables:
+
+```shell
+. /proc/boot/prepare_test.sh
+```
+
+Then connect from the host. Note that the CWD must be set to `/persistent/unit_tests`
+since the prepare script copies the binary and its runfiles there:
 
 ```shell
 ntox86_64-gdb \
     -ex "target qnx 127.0.0.1:38080" \
-    -ex "set nto-cwd /opt/tests" \
-    -ex "set nto-executable /opt/tests/cc_test_qnx" \
+    -ex "set nto-cwd /persistent/unit_tests" \
+    -ex "set nto-executable /persistent/unit_tests/cc_test_qnx" \
     <path-to-debug-binary-in-bazel-bin>
 ```
 

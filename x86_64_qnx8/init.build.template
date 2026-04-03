@@ -11,7 +11,7 @@
     # Use startup-x86 by default
     startup-x86 -v -D8250..115200 -zz
     PATH=/proc/boot
-    LD_LIBRARY_PATH=/proc/boot:/usr/lib
+    LD_LIBRARY_PATH=/proc/boot:/usr/lib:/persistent/unit_tests/libs
     procnto-smp-instr
 }
 

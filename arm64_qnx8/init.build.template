@@ -10,7 +10,7 @@
 [virtual=aarch64le,raw] boot = {
     startup-qemu-virt -v
     PATH=/proc/boot
-    LD_LIBRARY_PATH=/proc/boot
+    LD_LIBRARY_PATH=/proc/boot:/usr/lib:/persistent/unit_tests/libs
     procnto-smp-instr
 }
 

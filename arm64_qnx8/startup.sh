@@ -51,7 +51,8 @@ mount -t qnx6 -o noexec /dev/ram1 /tmp_discovery
 io-sock -m phy -m pci -m usb -m fdt -d vtnet_mmio
 
 waitfor /dev/socket
-if_up -p -r 200 -m 10 vtnet0
+
+if_up -p -r 500 -m 10 vtnet0
 
 ifconfig vtnet0 name eth0
 
@@ -60,3 +61,6 @@ if_up -l -r 200 -m 10 eth0
 
 mqueue
 waitfor /dev/mqueue
+
+devc-pty -n 32 &
+pdebug 38080

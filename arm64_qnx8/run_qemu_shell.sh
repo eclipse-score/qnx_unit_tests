@@ -20,10 +20,10 @@ TEST_IMAGE=$2
 
 DEBUG_PORT=""
 if [ $# -eq 4 ]; then
-    if [ "$5" == "--debug-port" ]; then
-        DEBUG_PORT="$6"
+    if [ "$3" == "--debug-port" ]; then
+        DEBUG_PORT="$4"
     else
-        echo "ERROR: Unknown argument '$5'"
+        echo "ERROR: Unknown argument '$3'"
         exit 1
     fi
 fi

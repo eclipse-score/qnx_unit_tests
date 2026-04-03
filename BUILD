@@ -33,6 +33,7 @@ pkg_files(
     name = "startup_pkg",
     testonly = True,
     srcs = [
+        "common/prepare_test.sh",
         "common/run_test.sh",
     ] + select({
         "@platforms//cpu:x86_64": [
