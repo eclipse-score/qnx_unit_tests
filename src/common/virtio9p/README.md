@@ -51,7 +51,7 @@ fs-virtio9p -o smem=0xa003600,irq=75,transport=mmio /mnt/host
 ## Components
 
 ```
-common/virtio9p/
+src/common/virtio9p/
 ├── include/
 │   ├── protocol/       # 9P2000.L message types, session, fid pool
 │   ├── transport/       # Transport interface, MMIO, PCI, virtqueue, virtio defs

@@ -9,29 +9,29 @@ qnx_unit_tests/
 ├── .bazelrc                # Bazel config (host + qnx-x86_64/aarch64 cross-compilation)
 ├── .bazelversion           # Pinned Bazel version (8.6.0)
 ├── MODULE.bazel            # Bzlmod dependencies (QCC, Ferrocene, IFS, googletest)
-├── BUILD                   # Top-level build targets (IFS images, pkg_files)
-├── test_qnx.bzl            # Core macro wrapping cc_test/rust_test for QNX microvm execution
-├── cc_test_qnx.bzl         # Convenience alias for C++ tests
-├── rust_test_qnx.bzl       # Convenience alias for Rust tests
-├── runfiles_manifest.bzl   # Bazel rule to list runfiles (for --run_under mode)
-├── x86_64_qnx8/            # x86_64 QNX 8 specific files
-│   ├── init.build.template
-│   ├── run_qemu.sh
-│   ├── run_qemu_shell.sh
-│   ├── run_under_qnx.sh
-│   ├── startup.sh
-│   └── tools.build
-├── arm64_qnx8/             # aarch64 QNX 8 specific files
-│   ├── init.build.template
-│   ├── run_qemu.sh
-│   ├── run_qemu_shell.sh
-│   ├── run_under_qnx.sh
-│   ├── startup.sh
-│   └── tools.build
-├── common/                 # Shared scripts and drivers
-│   ├── prepare_test.sh
-│   ├── run_test.sh
-│   └── virtio9p/           # 9P2000.L resource manager for host-guest file sharing
+├── BUILD                   # Copyright checker and formatting targets
+├── defs.bzl                # Public API (cc_test_qnx, rust_test_qnx)
+├── src/
+│   ├── test_qnx.bzl            # Core macro wrapping cc_test/rust_test for QNX microvm execution
+│   ├── runfiles_manifest.bzl   # Bazel rule to list runfiles (for --run_under mode)
+│   ├── x86_64_qnx8/            # x86_64 QNX 8 specific files
+│   │   ├── init.build.template
+│   │   ├── run_qemu.sh
+│   │   ├── run_qemu_shell.sh
+│   │   ├── run_under_qnx.sh
+│   │   ├── startup.sh
+│   │   └── tools.build
+│   ├── arm64_qnx8/             # aarch64 QNX 8 specific files
+│   │   ├── init.build.template
+│   │   ├── run_qemu.sh
+│   │   ├── run_qemu_shell.sh
+│   │   ├── run_under_qnx.sh
+│   │   ├── startup.sh
+│   │   └── tools.build
+│   └── common/                 # Shared scripts and drivers
+│       ├── prepare_test.sh
+│       ├── run_test.sh
+│       └── virtio9p/           # 9P2000.L resource manager for host-guest file sharing
 ├── third_party/
 │   └── BUILD               # Stubs for QNX system libraries (libslog2, libpci)
 ├── tools/
@@ -69,7 +69,7 @@ Add a test target and wrap it with the corresponding QNX macro (see `test/BUILD`
 
 ```python
 load("@rules_cc//cc:defs.bzl", "cc_test")
-load("@score_qnx_unit_tests//:cc_test_qnx.bzl", "cc_test_qnx")
+load("@score_qnx_unit_tests//:defs.bzl", "cc_test_qnx")
 
 cc_test(
     name = "main_cpp",
@@ -90,7 +90,7 @@ cc_test_qnx(
 
 ```python
 load("@rules_rust//rust:defs.bzl", "rust_test")
-load("@score_qnx_unit_tests//:rust_test_qnx.bzl", "rust_test_qnx")
+load("@score_qnx_unit_tests//:defs.bzl", "rust_test_qnx")
 
 rust_test(
     name = "main_rust",

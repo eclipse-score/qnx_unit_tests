@@ -24,13 +24,13 @@ bazel_dep(name = "rules_shell", version = "0.6.1")
 bazel_dep(name = "rules_pkg", version = "1.2.0")
 
 # Testing
-bazel_dep(name = "googletest", version = "1.17.0")
+bazel_dep(name = "googletest", version = "1.17.0", dev_dependency = True)
 
 # Score platform definitions (provides platforms + config_settings for QNX)
-bazel_dep(name = "score_bazel_platforms", version = "0.1.2")
+bazel_dep(name = "score_bazel_platforms", version = "0.1.2", dev_dependency = True)
 
 # QCC C++ cross-compiler toolchain
-bazel_dep(name = "score_bazel_cpp_toolchains", version = "0.3.1")
+bazel_dep(name = "score_bazel_cpp_toolchains", version = "0.3.1", dev_dependency = True)
 
 gcc = use_extension("@score_bazel_cpp_toolchains//extensions:gcc.bzl", "gcc", dev_dependency = True)
 gcc.sdp(
@@ -109,15 +109,15 @@ imagefs.toolchain(
 use_repo(imagefs, "score_qnx_aarch64_ifs_toolchain", "score_qnx_x86_64_ifs_toolchain")
 
 # Score tooling (copyright checker, format checker, starpls)
-bazel_dep(name = "score_tooling", version = "1.1.2")
+bazel_dep(name = "score_tooling", version = "1.1.2", dev_dependency = True)
 
 # Implicit dependencies for score_tooling
-bazel_dep(name = "aspect_rules_lint", version = "2.3.0")
-bazel_dep(name = "buildifier_prebuilt", version = "8.5.1")
-bazel_dep(name = "score_rust_policies", version = "0.0.5")
+bazel_dep(name = "aspect_rules_lint", version = "2.3.0", dev_dependency = True)
+bazel_dep(name = "buildifier_prebuilt", version = "8.5.1", dev_dependency = True)
+bazel_dep(name = "score_rust_policies", version = "0.0.5", dev_dependency = True)
 
 # Rust toolchain (Ferrocene, matching reference_integration setup)
-bazel_dep(name = "score_toolchains_rust", version = "0.4.0")
+bazel_dep(name = "score_toolchains_rust", version = "0.4.0", dev_dependency = True)
 
 git_override(
     module_name = "rules_rust",

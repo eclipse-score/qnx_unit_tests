@@ -10,9 +10,9 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
-"""Alias for test_qnx.bzl — use test_qnx.bzl directly for new code."""
+"""Public API for score_qnx_unit_tests."""
 
-load("@score_qnx_unit_tests//:test_qnx.bzl", "test_qnx")
+load("@score_qnx_unit_tests//src:test_qnx.bzl", "test_qnx")
 
 def cc_test_qnx(name, cc_test, excluded_tests_filter = None):
     """Compile and run a C++ QNX unit test in a QEMU microVM.
@@ -23,3 +23,12 @@ def cc_test_qnx(name, cc_test, excluded_tests_filter = None):
       excluded_tests_filter: list of tests to be excluded from execution.
     """
     test_qnx(name = name, test = cc_test, excluded_tests_filter = excluded_tests_filter)
+
+def rust_test_qnx(name, rust_test):
+    """Compile and run a Rust QNX unit test in a QEMU microVM.
+
+    Args:
+      name: Test name
+      rust_test: rust_test target
+    """
+    test_qnx(name = name, test = rust_test)

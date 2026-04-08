@@ -21,7 +21,7 @@ test:qnx-x86_64 --test_tag_filters=microvm_qnx_test
 
 # QNX x86_64 run_under config (runs any cc_test on QNX without cc_test_qnx wrapper)
 build:run-under-qnx-x86_64 --config=qnx-x86_64
-test:run-under-qnx-x86_64 --run_under=@score_qnx_unit_tests//:run_under_qnx
+test:run-under-qnx-x86_64 --run_under=@score_qnx_unit_tests//src:run_under_qnx
 test:run-under-qnx-x86_64 --test_tag_filters=
 test:run-under-qnx-x86_64 --test_lang_filters=cc,rust
 
@@ -36,7 +36,7 @@ test:qnx-aarch64 --test_tag_filters=microvm_qnx_test
 
 # QNX aarch64 run_under config (runs any cc_test on QNX without cc_test_qnx wrapper)
 build:run-under-qnx-aarch64 --config=qnx-aarch64
-test:run-under-qnx-aarch64 --run_under=@score_qnx_unit_tests//:run_under_qnx
+test:run-under-qnx-aarch64 --run_under=@score_qnx_unit_tests//src:run_under_qnx
 test:run-under-qnx-aarch64 --test_tag_filters=
 test:run-under-qnx-aarch64 --test_lang_filters=cc,rust
 
