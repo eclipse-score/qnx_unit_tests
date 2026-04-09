@@ -61,6 +61,21 @@ The `test_qnx` macro (and its aliases `cc_test_qnx` / `rust_test_qnx`) wraps a s
 3. QEMU boots the IFS image, mounts the test archive via virtio-9p, and executes the test
 4. Test results (XML, coverage) are extracted from the shared directory after execution
 
+### Bazel Configuration
+
+The `.bazelrc` file includes QNX-specific configs (`qnx-x86_64`, `qnx-aarch64`) that enable the necessary toolchains and flags. Of particular importance is the `--experimental_retain_test_configuration_across_testonly` flag, which is required for proper test extraction:
+
+**Why this flag is needed:**
+
+The `test_qnx` macro uses helper rules (`_get_test_and_data`, `_get_so_libs`) that are marked as `testonly` and depend on `cc_test` targets. Without this flag, Bazel's `trim_test_configuration` automatically strips test configuration options from these dependencies, causing the same test target to be analyzed in multiple configurations:
+
+- One configuration with full test options (for the main test suite)
+- Another configuration with test options stripped (for the helper rules)
+
+Both configurations try to produce identical output files (e.g., `.pic.o` object files), creating a conflict and failing the build.
+
+By setting `--experimental_retain_test_configuration_across_testonly`, we preserve the test configuration across `testonly` rule boundaries, ensuring all analyses of the same test target use the same configuration. This is a targeted fix that only affects testonly targets and has no correctness impact.
+
 ### Usage
 
 Add a test target and wrap it with the corresponding QNX macro (see `test/BUILD`):
