@@ -98,8 +98,5 @@ coverity-out
 # drawio backup files
 .$*.bkp
 
-# lockfile for bzlmod
-MODULE.bazel.lock
-
 # third_party checkouts
 third_party/rules_imagefs
