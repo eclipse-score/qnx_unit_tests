@@ -13,7 +13,7 @@
 
 # Please see the documentation for all configuration options:
 # https://docs.github.com/github/administering-a-repository/configuration-options-for-dependency-updates
-
+#
 # As problems are rare, we group each ecosystem into "all-in-one" PRs.
 version: 2
 updates:
