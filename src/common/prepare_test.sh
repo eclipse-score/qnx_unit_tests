@@ -20,7 +20,12 @@
 export GCOV_PREFIX=/persistent/coverage
 export GCOV_PREFIX_STRIP=3
 
+mkdir /persistent/tmp
 mkdir /persistent/unit_tests
+
+# TEST_TMPDIR must point to a filesystem that supports the full set of POSIX
+# operations (see Bazel Test Encyclopedia, "Initial conditions").
+export TEST_TMPDIR=/persistent/tmp
 
 ROOT_DIR="/opt/tests/cc_test_qnx.runfiles/"
 
