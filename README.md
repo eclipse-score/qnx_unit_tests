@@ -234,6 +234,21 @@ For shell runs, set directly:
 DISABLE_KVM=1 bazel run --config=qnx-x86_64 //test:main_cpp_qnx_shell
 ```
 
+### Forwarding Host Environment Variables
+
+By default the guest VM does not inherit the host environment. To make specific
+host variables visible to the test process inside the guest, list their names
+(comma-separated) in `QNX_FORWARD_ENV`. `run_under_qnx.sh` writes the named
+variables to a file that `prepare_test.sh` re-exports inside the guest. This is
+supported in the `--config=run-under-qnx-*` mode.
+
+```shell
+bazel test --config=run-under-qnx-x86_64 //test:main_cpp \
+    --test_env=QNX_FORWARD_ENV=MY_VAR,OTHER_VAR \
+    --test_env=MY_VAR=hello \
+    --test_env=OTHER_VAR=world
+```
+
 ### Dependencies
 
 This project uses the [Eclipse SCORE](https://github.com/eclipse-score) Bazel ecosystem:

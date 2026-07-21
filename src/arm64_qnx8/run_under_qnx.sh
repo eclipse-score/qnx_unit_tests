@@ -82,6 +82,17 @@ if [[ ${#TEST_ARGS[@]} -gt 0 ]]; then
     } > "${FSDEV_PATH}/cc_test_qnx_extra_args.sh"
 fi
 
+# Forward selected environment variables into the guest VM
+if [[ -n "${QNX_FORWARD_ENV:-}" ]]; then
+    ENV_FILE="${FSDEV_PATH}/cc_test_qnx_env.txt"
+    : > "${ENV_FILE}"
+    for _var in ${QNX_FORWARD_ENV//,/ }; do
+        if [[ -n "${!_var+x}" ]]; then
+            printf '%s=%s\n' "${_var}" "${!_var}" >> "${ENV_FILE}"
+        fi
+    done
+fi
+
 # Copy test runfiles from the merged runfiles tree (PWD), excluding run_under
 # infrastructure files listed in the manifest and .so shared libraries.
 RUN_UNDER_MANIFEST="${SCRIPT_DIR}/run_under_qnx_manifest.txt"

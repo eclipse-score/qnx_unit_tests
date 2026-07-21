@@ -29,6 +29,20 @@ cc_test_qnx(
     cc_test = ":main_cpp",
 )
 
+cc_test(
+    name = "env_forward",
+    srcs = ["env_forward.cpp"],
+    deps = [
+        "@googletest//:gtest",
+        "@googletest//:gtest_main",
+    ],
+)
+
+cc_test_qnx(
+    name = "env_forward_qnx",
+    cc_test = ":env_forward",
+)
+
 rust_test(
     name = "main_rust",
     srcs = ["main_rust.rs"],
@@ -38,4 +52,14 @@ rust_test(
 rust_test_qnx(
     name = "main_rust_qnx",
     rust_test = ":main_rust",
+)
+
+rust_test(
+    name = "env_forward_rust",
+    srcs = ["env_forward.rs"],
+)
+
+rust_test_qnx(
+    name = "env_forward_rust_qnx",
+    rust_test = ":env_forward_rust",
 )
