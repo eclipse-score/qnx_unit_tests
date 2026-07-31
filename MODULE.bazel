@@ -97,7 +97,7 @@ bazel_dep(name = "buildifier_prebuilt", version = "8.5.1", dev_dependency = True
 bazel_dep(name = "score_rust_policies", version = "0.0.5", dev_dependency = True)
 
 # Rust toolchain (Ferrocene, matching reference_integration setup)
-bazel_dep(name = "score_toolchains_rust", version = "0.9.1", dev_dependency = True)
+bazel_dep(name = "score_toolchains_rust", version = "0.10.0", dev_dependency = True)
 
 git_override(
     module_name = "rules_rust",
