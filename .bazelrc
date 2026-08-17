@@ -25,6 +25,9 @@ build:run-under-qnx-x86_64 --config=qnx-x86_64
 test:run-under-qnx-x86_64 --run_under=@score_qnx_unit_tests//src:run_under_qnx
 test:run-under-qnx-x86_64 --test_tag_filters=
 test:run-under-qnx-x86_64 --test_lang_filters=cc,rust
+# Exercise the QNX_FORWARD_ENV host -> guest forwarding (see //test:env_forward).
+test:run-under-qnx-x86_64 --test_env=QNX_FORWARD_ENV=QNX_FWD_ENV_CHECK
+test:run-under-qnx-x86_64 --test_env=QNX_FWD_ENV_CHECK=forwarded-into-qnx-guest
 
 # QNX aarch64 cross-compilation config
 build:qnx-aarch64 --sandbox_writable_path=/var/tmp
@@ -41,6 +44,9 @@ build:run-under-qnx-aarch64 --config=qnx-aarch64
 test:run-under-qnx-aarch64 --run_under=@score_qnx_unit_tests//src:run_under_qnx
 test:run-under-qnx-aarch64 --test_tag_filters=
 test:run-under-qnx-aarch64 --test_lang_filters=cc,rust
+# Exercise the QNX_FORWARD_ENV host -> guest forwarding (see //test:env_forward).
+test:run-under-qnx-aarch64 --test_env=QNX_FORWARD_ENV=QNX_FWD_ENV_CHECK
+test:run-under-qnx-aarch64 --test_env=QNX_FWD_ENV_CHECK=forwarded-into-qnx-guest
 
 # Test output
 test --test_output=errors

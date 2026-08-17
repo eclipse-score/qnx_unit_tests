@@ -42,6 +42,13 @@ export GTEST_OUTPUT="xml:/persistent/test.xml"
 cp -R /opt/tests/libs /persistent/unit_tests/
 export LD_LIBRARY_PATH="/persistent/unit_tests/libs:${LD_LIBRARY_PATH}"
 
+# Re-export environment variables forwarded from the host.
+if [ -f /opt/tests/cc_test_qnx_env.txt ]; then
+    while IFS= read -r env_line; do
+        [ -n "${env_line}" ] && export "${env_line}"
+    done < /opt/tests/cc_test_qnx_env.txt
+fi
+
 cd /persistent/unit_tests
 cp -f /opt/tests/cc_test_qnx cc_test_qnx
 chmod +x cc_test_qnx
