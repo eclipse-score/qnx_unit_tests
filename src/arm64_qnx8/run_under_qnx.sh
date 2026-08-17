@@ -67,9 +67,19 @@ else
     echo "-" > "${FSDEV_PATH}/cc_test_qnx_filters.txt"
 fi
 
-# Write test args so run_test.sh can forward them to the binary inside the VM
+# Write test args as a fragment run_test.sh sources to set the positional
+# parameters it passes to the binary. Each arg is single-quoted, with embedded
+# single quotes escaped, so spaces and shell metacharacters survive verbatim.
 if [[ ${#TEST_ARGS[@]} -gt 0 ]]; then
-    printf '%s\n' "${TEST_ARGS[@]}" > "${FSDEV_PATH}/cc_test_qnx_extra_args.txt"
+    # Expands to the four characters '\'' — closes the quote, escapes one, reopens
+    SQ_ESCAPE="'\\''"
+    {
+        printf 'set --'
+        for arg in "${TEST_ARGS[@]}"; do
+            printf " '%s'" "${arg//\'/${SQ_ESCAPE}}"
+        done
+        printf '\n'
+    } > "${FSDEV_PATH}/cc_test_qnx_extra_args.sh"
 fi
 
 # Copy test runfiles from the merged runfiles tree (PWD), excluding run_under

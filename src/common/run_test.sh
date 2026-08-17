@@ -15,7 +15,16 @@
 
 . /proc/boot/prepare_test.sh
 
-/persistent/unit_tests/cc_test_qnx
+# Bazel test args arrive as a fragment that sets the positional parameters.
+# The shell in the IFS cannot iterate a file line by line: its read builtin
+# consumes the whole file on the first call, so every later read hits EOF.
+set --
+if [ -f /opt/tests/cc_test_qnx_extra_args.sh ]; then
+    . /opt/tests/cc_test_qnx_extra_args.sh
+    echo "Test args: $*"
+fi
+
+/persistent/unit_tests/cc_test_qnx "$@"
 
 echo "$?" > /persistent/returncode.log
 
