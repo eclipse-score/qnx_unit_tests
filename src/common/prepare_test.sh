@@ -42,11 +42,12 @@ export GTEST_OUTPUT="xml:/persistent/test.xml"
 cp -R /opt/tests/libs /persistent/unit_tests/
 export LD_LIBRARY_PATH="/persistent/unit_tests/libs:${LD_LIBRARY_PATH}"
 
-# Re-export environment variables forwarded from the host.
-if [ -f /opt/tests/cc_test_qnx_env.txt ]; then
-    while IFS= read -r env_line; do
-        [ -n "${env_line}" ] && export "${env_line}"
-    done < /opt/tests/cc_test_qnx_env.txt
+# Re-export environment variables forwarded from the host. run_under_qnx.sh
+# writes them as a fragment of `export NAME='value'` lines: the shell in the
+# IFS cannot iterate a file line by line (its read builtin consumes the whole
+# file on the first call), so a read loop would only export the first variable.
+if [ -f /opt/tests/cc_test_qnx_env.sh ]; then
+    . /opt/tests/cc_test_qnx_env.sh
 fi
 
 cd /persistent/unit_tests

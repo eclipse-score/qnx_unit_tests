@@ -15,11 +15,15 @@
 
 // Proves the host -> guest environment forwarding mechanism (QNX_FORWARD_ENV).
 //
-// Under the run-under-qnx-* configs the host value of QNX_FWD_ENV_CHECK is
-// forwarded into the QNX guest by run_under_qnx.sh (writes cc_test_qnx_env.txt)
-// and re-exported by prepare_test.sh. The expected value is injected on the
-// host via --test_env in .bazelrc. See README "Forwarding Host Environment
-// Variables".
+// Under the run-under-qnx-* configs the host values of QNX_FWD_ENV_CHECK and
+// QNX_FWD_ENV_CHECK_2 are forwarded into the QNX guest by run_under_qnx.sh
+// (writes cc_test_qnx_env.sh) and re-exported by prepare_test.sh. The expected
+// values are injected on the host via --test_env in .bazelrc. See README
+// "Forwarding Host Environment Variables".
+//
+// Two variables are checked on purpose: the list in QNX_FORWARD_ENV is
+// comma-separated, and an earlier implementation only ever forwarded the
+// first entry.
 //
 // When the variable is not set (e.g. plain host `bazel test //...`, where no
 // forwarding happens) the test skips so it stays green in every configuration.
@@ -32,4 +36,11 @@ TEST(EnvForwarding, ForwardedVariableIsVisibleInGuest)
                         "not exercised in this configuration.";
     }
     EXPECT_STREQ(value, "forwarded-into-qnx-guest");
+
+    // Second entry of the comma-separated list; its value contains a space, so
+    // it also covers quoting of the forwarded value.
+    const char* second = std::getenv("QNX_FWD_ENV_CHECK_2");
+    ASSERT_NE(second, nullptr) << "QNX_FWD_ENV_CHECK was forwarded but "
+                                 "QNX_FWD_ENV_CHECK_2 was not.";
+    EXPECT_STREQ(second, "second forwarded value");
 }

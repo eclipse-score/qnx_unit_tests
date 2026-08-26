@@ -67,12 +67,14 @@ else
     echo "-" > "${FSDEV_PATH}/cc_test_qnx_filters.txt"
 fi
 
+# Expands to the four characters '\'' — closes the quote, escapes one, reopens.
+# Used by both fragments below to quote arbitrary values for the guest shell.
+SQ_ESCAPE="'\\''"
+
 # Write test args as a fragment run_test.sh sources to set the positional
 # parameters it passes to the binary. Each arg is single-quoted, with embedded
 # single quotes escaped, so spaces and shell metacharacters survive verbatim.
 if [[ ${#TEST_ARGS[@]} -gt 0 ]]; then
-    # Expands to the four characters '\'' — closes the quote, escapes one, reopens
-    SQ_ESCAPE="'\\''"
     {
         printf 'set --'
         for arg in "${TEST_ARGS[@]}"; do
@@ -82,13 +84,19 @@ if [[ ${#TEST_ARGS[@]} -gt 0 ]]; then
     } > "${FSDEV_PATH}/cc_test_qnx_extra_args.sh"
 fi
 
-# Forward selected environment variables into the guest VM.
+# Forward selected environment variables into the guest VM. Written as a
+# fragment prepare_test.sh sources rather than a plain NAME=VALUE list: the
+# shell in the IFS cannot iterate a file line by line (see run_test.sh), so a
+# read loop would only ever export the first variable.
+ENV_FILE="${FSDEV_PATH}/cc_test_qnx_env.sh"
+# A caller-supplied FSDEV_PATH may be reused across runs, so never let a
+# previous run's variables leak into this one.
+rm -f "${ENV_FILE}"
 if [[ -n "${QNX_FORWARD_ENV:-}" ]]; then
-    ENV_FILE="${FSDEV_PATH}/cc_test_qnx_env.txt"
     : > "${ENV_FILE}"
     for _var in ${QNX_FORWARD_ENV//,/ }; do
         if [[ -n "${!_var+x}" ]]; then
-            printf '%s=%s\n' "${_var}" "${!_var}" >> "${ENV_FILE}"
+            printf "export %s='%s'\n" "${_var}" "${!_var//\'/${SQ_ESCAPE}}" >> "${ENV_FILE}"
         fi
     done
 fi
