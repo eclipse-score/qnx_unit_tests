@@ -239,8 +239,11 @@ DISABLE_KVM=1 bazel run --config=qnx-x86_64 //test:main_cpp_qnx_shell
 By default the guest VM does not inherit the host environment. To make specific
 host variables visible to the test process inside the guest, list their names
 (comma-separated) in `QNX_FORWARD_ENV`. `run_under_qnx.sh` writes the named
-variables to a file that `prepare_test.sh` re-exports inside the guest. This is
-supported in the `--config=run-under-qnx-*` mode.
+variables to `cc_test_qnx_env.sh`, a fragment of `export NAME='value'` lines
+that `prepare_test.sh` sources inside the guest. Values are single-quoted, so
+spaces and shell metacharacters survive verbatim. Names listed in
+`QNX_FORWARD_ENV` that are unset on the host are skipped. This is supported in
+the `--config=run-under-qnx-*` mode.
 
 ```shell
 bazel test --config=run-under-qnx-x86_64 //test:main_cpp \
