@@ -46,17 +46,20 @@ qemu_setup_accel() {
         x86_64)
             qemu_check qemu-system-x86_64
             if [[ "${host_arch}" == "x86_64" ]]; then
-                case "$(grep -m1 '^vendor_id' /proc/cpuinfo 2>/dev/null)" in
-                    *AuthenticAMD*) QEMU_CPU="${QEMU_CPU:-EPYC-Milan}" ;;
-                    *GenuineIntel*) QEMU_CPU="${QEMU_CPU:-Icelake-Server}" ;;
-                    *) QEMU_CPU="${QEMU_CPU:-host}" ;;
-                esac
                 DISABLE_KVM="${DISABLE_KVM:-0}"
                 if [[ -e /dev/kvm && -r /dev/kvm ]] && [[ "${DISABLE_KVM}" == 0 ]]; then
+                    # "host" (pass through the physical CPU) only works with
+                    # KVM; the TCG fallback below needs an emulatable model.
+                    case "$(grep -m1 '^vendor_id' /proc/cpuinfo 2>/dev/null)" in
+                        *AuthenticAMD*) QEMU_CPU="${QEMU_CPU:-EPYC-Milan}" ;;
+                        *GenuineIntel*) QEMU_CPU="${QEMU_CPU:-Icelake-Server}" ;;
+                        *) QEMU_CPU="${QEMU_CPU:-host}" ;;
+                    esac
                     echo "KVM supported! CPU model: ${QEMU_CPU}"
                     ACCEL="-enable-kvm -cpu ${QEMU_CPU}"
                 else
                     [[ "${DISABLE_KVM}" != 0 ]] && echo "KVM explicitly disabled!"
+                    QEMU_CPU="${QEMU_CPU:-max}"
                     echo "CPU model: ${QEMU_CPU}"
                     ACCEL="-cpu ${QEMU_CPU}"
                 fi
