@@ -141,9 +141,9 @@ sh_binary(
         "@platforms//cpu:aarch64": ["arm64_qnx8/run_under_qnx.sh"],
     }),
     data = [
+        "common/qemu_common.sh",
         ":init",
         ":run_under_qnx_manifest",
-        "common/qemu_common.sh",
     ],
     tags = ["manual"],
     visibility = ["//visibility:public"],
