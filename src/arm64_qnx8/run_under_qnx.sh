@@ -137,7 +137,7 @@ else
 fi
 
 # --- Launch QEMU (ARM64) ---
-qemu_setup_accel
+qemu_setup_accel aarch64
 
 qemu-system-aarch64 \
     -smp 2 \

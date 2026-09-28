@@ -137,7 +137,7 @@ else
 fi
 
 # --- Launch QEMU (x86_64, QNX 8) ---
-qemu_setup_accel
+qemu_setup_accel x86_64
 
 NETWORK="-netdev user,id=net0 -device virtio-net-pci,netdev=net0"
 

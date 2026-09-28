@@ -47,7 +47,7 @@ if [ ! -z "${DEBUG_PORT}" ]; then
     NETWORK="-netdev user,id=net0,hostfwd=tcp:127.0.0.1:${DEBUG_PORT}-10.0.2.15:38080 -device virtio-net-pci,netdev=net0"
 fi
 
-qemu_setup_accel
+qemu_setup_accel x86_64
 
 qemu-system-x86_64 \
                 -smp 2 \

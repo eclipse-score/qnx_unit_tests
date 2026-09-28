@@ -30,7 +30,7 @@ qemu_setup_fsdev
 # Share test image via the 9p host directory (mounted as /opt/tests in the VM)
 tar xf "${TEST_IMAGE}" -C "${FSDEV_PATH}"
 
-qemu_setup_accel
+qemu_setup_accel x86_64
 
 NETWORK="-netdev user,id=net0 -device virtio-net-pci,netdev=net0"
 

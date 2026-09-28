@@ -32,32 +32,49 @@ qemu_check() {
     fi
 }
 
-# Set ACCEL, QEMU_CPU, and DISABLE_KVM based on host architecture.
-# x86_64: vendor-aware CPU model + optional KVM. aarch64: virt machine + max CPU.
+# Set ACCEL, QEMU_CPU, and DISABLE_KVM for the given guest architecture.
+# KVM and host-vendor CPU matching only apply when the host can run that guest
+# natively (host arch == guest arch); a cross-arch host is always TCG, so the
+# host's own CPU vendor is irrelevant and a generic model is used instead.
+# Usage: qemu_setup_accel <x86_64|aarch64>
 qemu_setup_accel() {
-    case "$(uname -m)" in
+    local guest_arch="$1"
+    local host_arch
+    host_arch="$(uname -m)"
+
+    case "${guest_arch}" in
         x86_64)
-            case "$(grep -m1 '^vendor_id' /proc/cpuinfo 2>/dev/null)" in
-                *AuthenticAMD*) QEMU_CPU="${QEMU_CPU:-EPYC-Milan}" ;;
-                *GenuineIntel*) QEMU_CPU="${QEMU_CPU:-Icelake-Server}" ;;
-                *) QEMU_CPU="${QEMU_CPU:-host}" ;;
-            esac
             qemu_check qemu-system-x86_64
-            DISABLE_KVM="${DISABLE_KVM:-0}"
-            if [[ -e /dev/kvm && -r /dev/kvm ]] && [[ "${DISABLE_KVM}" == 0 ]]; then
-                echo "KVM supported! CPU model: ${QEMU_CPU}"
-                ACCEL="-enable-kvm -cpu ${QEMU_CPU}"
+            if [[ "${host_arch}" == "x86_64" ]]; then
+                case "$(grep -m1 '^vendor_id' /proc/cpuinfo 2>/dev/null)" in
+                    *AuthenticAMD*) QEMU_CPU="${QEMU_CPU:-EPYC-Milan}" ;;
+                    *GenuineIntel*) QEMU_CPU="${QEMU_CPU:-Icelake-Server}" ;;
+                    *) QEMU_CPU="${QEMU_CPU:-host}" ;;
+                esac
+                DISABLE_KVM="${DISABLE_KVM:-0}"
+                if [[ -e /dev/kvm && -r /dev/kvm ]] && [[ "${DISABLE_KVM}" == 0 ]]; then
+                    echo "KVM supported! CPU model: ${QEMU_CPU}"
+                    ACCEL="-enable-kvm -cpu ${QEMU_CPU}"
+                else
+                    [[ "${DISABLE_KVM}" != 0 ]] && echo "KVM explicitly disabled!"
+                    echo "CPU model: ${QEMU_CPU}"
+                    ACCEL="-cpu ${QEMU_CPU}"
+                fi
             else
-                [[ "${DISABLE_KVM}" != 0 ]] && echo "KVM explicitly disabled!"
-                echo "CPU model: ${QEMU_CPU}"
+                QEMU_CPU="${QEMU_CPU:-max}"
+                echo "Cross-arch emulation (host ${host_arch}), no KVM. CPU model: ${QEMU_CPU}"
                 ACCEL="-cpu ${QEMU_CPU}"
             fi
             ;;
         aarch64)
-            QEMU_CPU="${QEMU_CPU:-max}"
             qemu_check qemu-system-aarch64
+            QEMU_CPU="${QEMU_CPU:-max}"
             echo "CPU model: ${QEMU_CPU}"
             ACCEL="-machine virt -cpu ${QEMU_CPU}"
+            ;;
+        *)
+            echo "ERROR: qemu_setup_accel: unknown guest arch '${guest_arch}'" >&2
+            exit 1
             ;;
     esac
 }
