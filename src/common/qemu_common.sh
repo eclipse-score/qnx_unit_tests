@@ -115,11 +115,18 @@ qemu_setup_fsdev() {
         FSDEV_PATH=$(mktemp -d)
         FSDEV_PATH_CREATED=1
     else
-        # A caller-supplied FSDEV_PATH is reusable across runs; wipe it so
-        # stale payloads (test_results, forwarded env, copied runfiles, a
-        # leftover cc_test_qnx_extra_args.sh from a run that had args) can't
-        # leak into this one.
-        rm -rf "${FSDEV_PATH}"
+        # A caller-supplied FSDEV_PATH is reusable across runs, and may point
+        # at a pre-existing directory the caller doesn't want wiped wholesale.
+        # Clear only the entries a launcher actually stages here (test
+        # results, forwarded env, copied binary/runfiles/libs, and a leftover
+        # extra-args fragment from a run that had args), never the directory
+        # itself.
+        local entry
+        for entry in test_results cc_test_qnx cc_test_qnx.runfiles \
+                cc_test_qnx_filters.txt cc_test_qnx_extra_args.sh \
+                cc_test_qnx_env.sh libs; do
+            rm -rf "${FSDEV_PATH:?}/${entry}"
+        done
     fi
     mkdir -p "${FSDEV_PATH}"
 }
