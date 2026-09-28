@@ -218,7 +218,7 @@ cc_test_qnx(
 | Variable | Default | Description |
 |---|---|---|
 | `DISABLE_KVM` | `0` | Set to `1` to disable KVM acceleration |
-| `QEMU_CPU` | vendor-detected (`Icelake-Server` on Intel hosts, `EPYC-Milan` on AMD, `host` otherwise) | QEMU CPU model (e.g. `Cascadelake-Server-v5`) |
+| `QEMU_CPU` | aarch64: `max`. x86_64: vendor-detected (`Icelake-Server` on Intel hosts, `EPYC-Milan` on AMD, `host` otherwise); cross-arch emulation (e.g. an aarch64 host running x86_64-qnx) always uses `max` since KVM and host-vendor matching don't apply | QEMU CPU model (e.g. `Cascadelake-Server-v5`) |
 | `QEMU_STREAM_OUTPUT` | `0` | Set to `1` to stream test output live over the serial console (slow; for interactive debugging). Default redirects to a file on the guest RAM disk for speed. Must be forwarded via `QNX_FORWARD_ENV`. |
 | `FSDEV_PATH` | (auto) | Override the virtio-9p shared directory path |
 
