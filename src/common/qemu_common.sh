@@ -114,11 +114,14 @@ qemu_setup_fsdev() {
     if [[ -z "${FSDEV_PATH:-}" ]]; then
         FSDEV_PATH=$(mktemp -d)
         FSDEV_PATH_CREATED=1
+    else
+        # A caller-supplied FSDEV_PATH is reusable across runs; wipe it so
+        # stale payloads (test_results, forwarded env, copied runfiles, a
+        # leftover cc_test_qnx_extra_args.sh from a run that had args) can't
+        # leak into this one.
+        rm -rf "${FSDEV_PATH}"
     fi
     mkdir -p "${FSDEV_PATH}"
-    # A caller-supplied FSDEV_PATH may be reused across runs; drop any
-    # previous run's results so qemu_extract_results can't report them again.
-    rm -rf "${FSDEV_PATH}/test_results"
 }
 
 # Remove the virtio-9p shared directory if we created it.
