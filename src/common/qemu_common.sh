@@ -116,6 +116,9 @@ qemu_setup_fsdev() {
         FSDEV_PATH_CREATED=1
     fi
     mkdir -p "${FSDEV_PATH}"
+    # A caller-supplied FSDEV_PATH may be reused across runs; drop any
+    # previous run's results so qemu_extract_results can't report them again.
+    rm -rf "${FSDEV_PATH}/test_results"
 }
 
 # Remove the virtio-9p shared directory if we created it.
