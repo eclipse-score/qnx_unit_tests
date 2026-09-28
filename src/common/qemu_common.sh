@@ -139,7 +139,10 @@ qemu_extract_results() {
         cp "${fsdev_path}/test_results/test.xml" "${XML_OUTPUT_FILE}"
     fi
     if [ -f "${fsdev_path}/test_results/test_output.log" ]; then
-        cat "${fsdev_path}/test_results/test_output.log"
+        # Apply the same control-character/CR filtering as the live QEMU
+        # pipelines below, so buffered (non-streamed) output can't dump raw
+        # ANSI/control bytes into the Bazel log.
+        sed 's/[^[:print:]]//g; s/\r//' "${fsdev_path}/test_results/test_output.log"
     fi
     if [ -f "${fsdev_path}/test_results/coverage.tar.gz" ]; then
         tar -xf "${fsdev_path}/test_results/coverage.tar.gz" --no-same-owner --no-same-permissions -C "${TEST_UNDECLARED_OUTPUTS_DIR}"
