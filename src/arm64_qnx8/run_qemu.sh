@@ -30,6 +30,9 @@ qemu_setup_fsdev
 # Share test image via the 9p host directory (mounted as /opt/tests in the VM)
 tar xf "${TEST_IMAGE}" -C "${FSDEV_PATH}"
 
+# Forward selected environment variables into the guest VM (see qemu_common.sh).
+qemu_write_forwarded_env "${FSDEV_PATH}"
+
 qemu_setup_accel aarch64
 
 qemu-system-aarch64 \

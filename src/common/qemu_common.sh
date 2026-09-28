@@ -79,6 +79,33 @@ qemu_setup_accel() {
     esac
 }
 
+# Write vars named in QNX_FORWARD_ENV as an `export NAME='value'` fragment at
+# <fsdev_path>/cc_test_qnx_env.sh, sourced by prepare_test.sh in the guest: the
+# shell in the IFS cannot iterate a file line by line (its read builtin
+# consumes the whole file on the first call), so a read loop would only ever
+# export the first variable.
+# Usage: qemu_write_forwarded_env <fsdev_path>
+qemu_write_forwarded_env() {
+    local fsdev_path="$1"
+    local env_file="${fsdev_path}/cc_test_qnx_env.sh"
+    # Expands to the four characters '\'' — closes the quote, escapes one,
+    # reopens — to quote arbitrary values for the guest shell.
+    local sq_escape="'\\''"
+
+    # A caller-supplied fsdev_path may be reused across runs, so never let a
+    # previous run's variables leak into this one.
+    rm -f "${env_file}"
+    if [[ -n "${QNX_FORWARD_ENV:-}" ]]; then
+        : > "${env_file}"
+        local var
+        for var in ${QNX_FORWARD_ENV//,/ }; do
+            if [[ -n "${!var+x}" ]]; then
+                printf "export %s='%s'\n" "${var}" "${!var//\'/${sq_escape}}" >> "${env_file}"
+            fi
+        done
+    fi
+}
+
 # Create or reuse the virtio-9p shared directory.
 qemu_setup_fsdev() {
     if [[ -z "${FSDEV_PATH:-}" ]]; then
