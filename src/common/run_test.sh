@@ -42,18 +42,19 @@ mkdir /opt/tests/test_results
 
 cp -fR /persistent/returncode.log /opt/tests/test_results/returncode.log
 
-if [ -e "/persistent/test_output.log" ]; then
-    cp -fR /persistent/test_output.log /opt/tests/test_results/test_output.log
-fi
-
 if [ -e "/persistent/test.xml" ]; then
     cp -fR /persistent/test.xml /opt/tests/test_results/test.xml
 fi
 
-# Wait for all test processes to finish
+# Wait for all test processes to finish before snapshotting the log: a
+# backgrounded child inheriting stdout/stderr can still be appending to it.
 echo "Waiting for all test processes to finish..."
 while pidin -F '%a %b %n' | grep cc_test_qnx > /dev/null 2>&1; do true; done
 echo "Test processes finished"
+
+if [ -e "/persistent/test_output.log" ]; then
+    cp -fR /persistent/test_output.log /opt/tests/test_results/test_output.log
+fi
 
 if [ -d "/persistent/coverage" ]; then
     chmod -R 777 /persistent/coverage
