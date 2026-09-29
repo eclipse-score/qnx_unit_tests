@@ -432,9 +432,9 @@ int IoWrite(resmgr_context_t* ctp, io_write_t* msg, void* vocb)
             const auto overflow_offset_i64 =
                 static_cast<std::int64_t>(ctp->offset) + static_cast<std::int64_t>(header_size) +
                 static_cast<std::int64_t>(total_written) + static_cast<std::int64_t>(copied);
-            const auto overflow_offset = static_cast<int>(overflow_offset_i64);
+            const auto overflow_offset = static_cast<std::size_t>(overflow_offset_i64);
             auto bytes_read =
-                resmgr_msgread(ctp, buf.data() + copied, static_cast<int>(to_write - copied), overflow_offset);
+                resmgr_msgread(ctp, buf.data() + copied, static_cast<std::size_t>(to_write - copied), overflow_offset);
             if (bytes_read < 0)
             {
                 return errno;
