@@ -29,6 +29,7 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
 # Locate data dependencies from the sh_binary's runfiles
 IFS_IMAGE="${SCRIPT_DIR}/init.ifs"
+. "${SCRIPT_DIR}/common/qemu_common.sh"
 
 # The test binary and optional args are passed by --run_under
 TEST_BINARY="$1"
@@ -40,22 +41,9 @@ if [[ ! -f "${TEST_BINARY}" ]]; then
     exit 1
 fi
 
-# --- Prepare writable copies of shared images ---
-cleanup() {
-    if [[ "${FSDEV_PATH_CREATED:-0}" == "1" ]]; then
-        rm -rf "${FSDEV_PATH}"
-    fi
-}
-trap cleanup EXIT
-
 # --- Prepare host shared directory for virtio-9p ---
-if [[ -z "${FSDEV_PATH:-}" ]]; then
-    FSDEV_PATH=$(mktemp -d)
-    FSDEV_PATH_CREATED=1
-fi
-
-# Share test binary + runfiles via the 9p host directory
-mkdir -p "${FSDEV_PATH}"
+trap qemu_cleanup_fsdev EXIT
+qemu_setup_fsdev
 
 # Copy test binary
 cp "${TEST_BINARY}" "${FSDEV_PATH}/cc_test_qnx"
@@ -84,22 +72,8 @@ if [[ ${#TEST_ARGS[@]} -gt 0 ]]; then
     } > "${FSDEV_PATH}/cc_test_qnx_extra_args.sh"
 fi
 
-# Forward selected environment variables into the guest VM. Written as a
-# fragment prepare_test.sh sources rather than a plain NAME=VALUE list: the
-# shell in the IFS cannot iterate a file line by line (see run_test.sh), so a
-# read loop would only ever export the first variable.
-ENV_FILE="${FSDEV_PATH}/cc_test_qnx_env.sh"
-# A caller-supplied FSDEV_PATH may be reused across runs, so never let a
-# previous run's variables leak into this one.
-rm -f "${ENV_FILE}"
-if [[ -n "${QNX_FORWARD_ENV:-}" ]]; then
-    : > "${ENV_FILE}"
-    for _var in ${QNX_FORWARD_ENV//,/ }; do
-        if [[ -n "${!_var+x}" ]]; then
-            printf "export %s='%s'\n" "${_var}" "${!_var//\'/${SQ_ESCAPE}}" >> "${ENV_FILE}"
-        fi
-    done
-fi
+# Forward selected environment variables into the guest VM (see qemu_common.sh).
+qemu_write_forwarded_env "${FSDEV_PATH}"
 
 # Copy test runfiles from the merged runfiles tree (PWD), excluding run_under
 # infrastructure files listed in the manifest and .so shared libraries.
@@ -149,7 +123,8 @@ else
 fi
 
 # --- Launch QEMU (ARM64) ---
-ACCEL="-machine virt -cpu max"
+qemu_setup_accel aarch64
+
 qemu-system-aarch64 \
     -smp 2 \
     -m 2G \
@@ -166,21 +141,4 @@ qemu-system-aarch64 \
     2>&1 | sed -u 's/[^[:print:]]//g' | sed -u 's/\r//'
 
 # --- Extract test results ---
-if [ -f "${FSDEV_PATH}/test_results/test.xml" ]; then
-    cp ${FSDEV_PATH}/test_results/test.xml ${XML_OUTPUT_FILE}
-fi
-
-if [ -f "${FSDEV_PATH}/test_results/coverage.tar.gz" ]; then
-    tar -xf ${FSDEV_PATH}/test_results/coverage.tar.gz --no-same-owner --no-same-permissions -C "${TEST_UNDECLARED_OUTPUTS_DIR}"
-    if [ -n "${COVERAGE_DIR:-}" ]; then
-        # Additionally extract to COVERAGE_DIR for Bazel's collect_cc_coverage.sh
-        tar -xf ${FSDEV_PATH}/test_results/coverage.tar.gz --no-same-owner --no-same-permissions -C "${COVERAGE_DIR}"
-    fi
-fi
-
-if [ -f "${FSDEV_PATH}/test_results/returncode.log" ]; then
-    exit $(cat "${FSDEV_PATH}/test_results/returncode.log")
-else
-    echo "ERROR: Test return code log not found!" >&2
-    exit 1
-fi
+qemu_extract_results "${FSDEV_PATH}"

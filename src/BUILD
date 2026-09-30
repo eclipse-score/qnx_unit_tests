@@ -18,6 +18,7 @@ load("//src:runfiles_manifest.bzl", "runfiles_manifest")
 
 exports_files(
     [
+        "common/qemu_common.sh",
         "x86_64_qnx8/run_qemu_shell.sh",
         "x86_64_qnx8/run_qemu.sh",
         "x86_64_qnx8/run_under_qnx.sh",
@@ -140,6 +141,7 @@ sh_binary(
         "@platforms//cpu:aarch64": ["arm64_qnx8/run_under_qnx.sh"],
     }),
     data = [
+        "common/qemu_common.sh",
         ":init",
         ":run_under_qnx_manifest",
     ],

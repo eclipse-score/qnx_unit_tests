@@ -15,6 +15,12 @@
 
 set -euo pipefail
 
+# The sh_binary entrypoint is a symlink in the consuming package, so $0 points
+# there, not at this script. Resolve it so SCRIPT_DIR reaches src/<arch>/ and
+# ../common/qemu_common.sh finds the shared helpers.
+SCRIPT_DIR="$(cd "$(dirname "$(readlink -f "$0")")" && pwd)"
+. "${SCRIPT_DIR}/../common/qemu_common.sh"
+
 IFS_IMAGE=$1
 TEST_IMAGE=$2
 
@@ -28,19 +34,8 @@ if [ $# -eq 4 ]; then
     fi
 fi
 
-# --- Prepare writable copies of shared images ---
-cleanup() {
-    if [[ "${FSDEV_PATH_CREATED:-0}" == "1" ]]; then
-        rm -rf "${FSDEV_PATH}"
-    fi
-}
-trap cleanup EXIT
-
-# --- Prepare host shared directory for virtio-9p ---
-if [[ -z "${FSDEV_PATH:-}" ]]; then
-    FSDEV_PATH=$(mktemp -d)
-    FSDEV_PATH_CREATED=1
-fi
+trap qemu_cleanup_fsdev EXIT
+qemu_setup_fsdev
 
 # Share test image via the 9p host directory (mounted as /opt/tests in the VM)
 tar xf "${TEST_IMAGE}" -C "${FSDEV_PATH}"
@@ -51,7 +46,7 @@ if [ ! -z "${DEBUG_PORT}" ]; then
     NETWORK="-netdev user,id=net0,hostfwd=tcp:127.0.0.1:${DEBUG_PORT}-10.0.2.15:38080 -device virtio-net-device,netdev=net0,mac=52:54:00:0d:81:90"
 fi
 
-ACCEL="-machine virt -cpu max"
+qemu_setup_accel aarch64
 
 qemu-system-aarch64 \
                 -smp 2 \
