@@ -30,6 +30,7 @@ qnx_unit_tests/
 │   │   └── tools.build
 │   └── common/                 # Shared scripts and drivers
 │       ├── prepare_test.sh
+│       ├── qemu_common.sh
 │       ├── run_test.sh
 │       └── virtio9p/           # 9P2000.L resource manager for host-guest file sharing
 ├── third_party/
@@ -218,7 +219,8 @@ cc_test_qnx(
 | Variable | Default | Description |
 |---|---|---|
 | `DISABLE_KVM` | `0` | Set to `1` to disable KVM acceleration |
-| `QEMU_CPU` | `host` | QEMU CPU model (e.g. `Cascadelake-Server-v5`) |
+| `QEMU_CPU` | aarch64: `max`. x86_64 with KVM: vendor-detected (`Icelake-Server` on Intel hosts, `EPYC-Milan` on AMD, `host` otherwise). x86_64 without KVM (`DISABLE_KVM=1` or no `/dev/kvm`), and cross-arch emulation (e.g. an aarch64 host running x86_64-qnx): always `max`, since KVM and host-vendor matching don't apply | QEMU CPU model (e.g. `Cascadelake-Server-v5`) |
+| `QEMU_BUFFER_OUTPUT` | `0` | Set to `1` to redirect test output to the guest RAM disk for speed (logs still visible via host cat). Default streams live over serial. Must be forwarded via `QNX_FORWARD_ENV`. |
 | `FSDEV_PATH` | (auto) | Override the virtio-9p shared directory path |
 
 For tests, pass via `--test_env`:
@@ -238,12 +240,12 @@ DISABLE_KVM=1 bazel run --config=qnx-x86_64 //test:main_cpp_qnx_shell
 
 By default the guest VM does not inherit the host environment. To make specific
 host variables visible to the test process inside the guest, list their names
-(comma-separated) in `QNX_FORWARD_ENV`. `run_under_qnx.sh` writes the named
+(comma-separated) in `QNX_FORWARD_ENV`. The launcher writes the named
 variables to `cc_test_qnx_env.sh`, a fragment of `export NAME='value'` lines
 that `prepare_test.sh` sources inside the guest. Values are single-quoted, so
 spaces and shell metacharacters survive verbatim. Names listed in
-`QNX_FORWARD_ENV` that are unset on the host are skipped. This is supported in
-the `--config=run-under-qnx-*` mode.
+`QNX_FORWARD_ENV` that are unset on the host are skipped. This works in both
+the normal `cc_test_qnx` path and the `--config=run-under-qnx-*` mode.
 
 ```shell
 bazel test --config=run-under-qnx-x86_64 //test:main_cpp \

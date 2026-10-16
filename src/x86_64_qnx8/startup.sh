@@ -28,7 +28,7 @@ waitfor /dev/random
 fsevmgr
 waitfor /dev/fsnotify
 
-devb-ram ram capacity=1 blk ramdisk=256m,cache=512k,vnode=256
+devb-ram ram capacity=1 blk ramdisk=512m,cache=512k,vnode=256
 waitfor /dev/ram0
 
 while ! mkqnx6fs -q /dev/ram0; do

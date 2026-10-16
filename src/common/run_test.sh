@@ -24,9 +24,21 @@ if [ -f /opt/tests/cc_test_qnx_extra_args.sh ]; then
     echo "Test args: $*"
 fi
 
-/persistent/unit_tests/cc_test_qnx "$@"
+# Test output written straight to the console goes through the emulated
+# serial UART (one slow trap per character). Redirecting to the RAM disk
+# (/persistent) is an order of magnitude faster for chatty tests. The host
+# cats the captured log back to stdout after the run so --test_output still
+# shows it. Set QEMU_BUFFER_OUTPUT=1 to redirect to RAM disk for speed
+# (logs still visible in GH Actions via host cat). Default streams live.
+if [ "${QEMU_BUFFER_OUTPUT:-0}" = "1" ]; then
+    /persistent/unit_tests/cc_test_qnx "$@" > /persistent/test_output.log 2>&1
+    test_rc=$?
+else
+    /persistent/unit_tests/cc_test_qnx "$@"
+    test_rc=$?
+fi
 
-echo "$?" > /persistent/returncode.log
+echo "${test_rc}" > /persistent/returncode.log
 
 mkdir /opt/tests/test_results
 
@@ -36,10 +48,15 @@ if [ -e "/persistent/test.xml" ]; then
     cp -fR /persistent/test.xml /opt/tests/test_results/test.xml
 fi
 
-# Wait for all test processes to finish
+# Wait for all test processes to finish before snapshotting the log: a
+# backgrounded child inheriting stdout/stderr can still be appending to it.
 echo "Waiting for all test processes to finish..."
 while pidin -F '%a %b %n' | grep cc_test_qnx > /dev/null 2>&1; do true; done
 echo "Test processes finished"
+
+if [ -e "/persistent/test_output.log" ]; then
+    cp -fR /persistent/test_output.log /opt/tests/test_results/test_output.log
+fi
 
 if [ -d "/persistent/coverage" ]; then
     chmod -R 777 /persistent/coverage

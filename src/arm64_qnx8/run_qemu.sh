@@ -15,27 +15,25 @@
 
 set -euo pipefail
 
+# The sh_test entrypoint is a symlink in the consuming package, so $0 points
+# there, not at this script. Resolve it so SCRIPT_DIR reaches src/<arch>/ and
+# ../common/qemu_common.sh finds the shared helpers.
+SCRIPT_DIR="$(cd "$(dirname "$(readlink -f "$0")")" && pwd)"
+. "${SCRIPT_DIR}/../common/qemu_common.sh"
+
 IFS_IMAGE=$1
 TEST_IMAGE=$2
 
-# --- Prepare writable copies of shared images ---
-cleanup() {
-    if [[ "${FSDEV_PATH_CREATED:-0}" == "1" ]]; then
-        rm -rf "${FSDEV_PATH}"
-    fi
-}
-trap cleanup EXIT
-
-# --- Prepare host shared directory for virtio-9p ---
-if [[ -z "${FSDEV_PATH:-}" ]]; then
-    FSDEV_PATH=$(mktemp -d)
-    FSDEV_PATH_CREATED=1
-fi
+trap qemu_cleanup_fsdev EXIT
+qemu_setup_fsdev
 
 # Share test image via the 9p host directory (mounted as /opt/tests in the VM)
 tar xf "${TEST_IMAGE}" -C "${FSDEV_PATH}"
 
-ACCEL="-machine virt -cpu max"
+# Forward selected environment variables into the guest VM (see qemu_common.sh).
+qemu_write_forwarded_env "${FSDEV_PATH}"
+
+qemu_setup_accel aarch64
 
 qemu-system-aarch64 \
                 -smp 2 \
@@ -52,22 +50,4 @@ qemu-system-aarch64 \
                 -device virtio-9p-device,fsdev=fsdev0,mount_tag=hostshare \
                 2>&1 | sed -u 's/[^[:print:]]//g' | sed -u 's/\r//'
 
-# --- Extract test results ---
-if [ -f "${FSDEV_PATH}/test_results/test.xml" ]; then
-    cp ${FSDEV_PATH}/test_results/test.xml ${XML_OUTPUT_FILE}
-fi
-
-if [ -f "${FSDEV_PATH}/test_results/coverage.tar.gz" ]; then
-    tar -xf ${FSDEV_PATH}/test_results/coverage.tar.gz --no-same-owner --no-same-permissions -C "${TEST_UNDECLARED_OUTPUTS_DIR}"
-    if [ -n "${COVERAGE_DIR:-}" ]; then
-        # Additionally extract to COVERAGE_DIR for Bazel's collect_cc_coverage.sh
-        tar -xf ${FSDEV_PATH}/test_results/coverage.tar.gz --no-same-owner --no-same-permissions -C "${COVERAGE_DIR}"
-    fi
-fi
-
-if [ -f "${FSDEV_PATH}/test_results/returncode.log" ]; then
-    exit $(cat "${FSDEV_PATH}/test_results/returncode.log")
-else
-    echo "ERROR: Test return code log not found!" >&2
-    exit 1
-fi
+qemu_extract_results "${FSDEV_PATH}"

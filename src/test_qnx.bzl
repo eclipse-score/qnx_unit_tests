@@ -163,6 +163,7 @@ def _test_qnx(name, test, excluded_tests_filter, flaky, tags):
         data = [
             ":%s_pkg_tar" % name,
             "@score_qnx_unit_tests//src:init",
+            "@score_qnx_unit_tests//src:common/qemu_common.sh",
             # Include the original test target so Bazel's coverage pipeline can
             # discover .gcno files via InstrumentedFilesInfo for `bazel coverage`.
             test,
@@ -192,6 +193,7 @@ def _test_qnx(name, test, excluded_tests_filter, flaky, tags):
         data = [
             ":%s_pkg_tar" % name,
             "@score_qnx_unit_tests//src:init_shell",
+            "@score_qnx_unit_tests//src:common/qemu_common.sh",
         ],
         testonly = True,
         target_compatible_with = [
