@@ -89,7 +89,7 @@ use_repo(
 )
 
 # Score tooling (copyright checker, format checker, starpls)
-bazel_dep(name = "score_tooling", version = "1.1.2", dev_dependency = True)
+bazel_dep(name = "score_tooling", version = "1.3.1", dev_dependency = True)
 
 # Implicit dependencies for score_tooling
 bazel_dep(name = "aspect_rules_lint", version = "2.3.0", dev_dependency = True)
